@@ -1,6 +1,6 @@
 
     
-def parse_bytes(data:bytes):
+def parse_bytes(data: bytes):
     offset = 0
     request = yield
     while True:

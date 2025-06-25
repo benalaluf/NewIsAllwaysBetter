@@ -9,6 +9,7 @@ ARP_HW_LEN_SIZE = 1
 ARP_PROTO_LEN_SIZE = 1
 ARP_OP_SIZE = 2
 
+
 class ArpOperationType(Enum):
     REQUEST = b'\x00\x01'
     REPLY = b'\x00\x02'
@@ -16,7 +17,7 @@ class ArpOperationType(Enum):
 
 class Arp:
 
-    def __init__(self, bytes =None, hw_type=None, proto_type=None, hw_len=None,proto_len=None,op=None,
+    def __init__(self, bytes =None, hw_type=b'\x00\01', proto_type=b'\x08\x00', hw_len=4 ,proto_len=6,op=None,
                  sender_hw=None, sender_proto=None, target_hw=None, target_proto=None):
 
         self.hardware_type = hw_type
@@ -31,6 +32,20 @@ class Arp:
         
         if bytes:
             self.from_bytes(bytes)
+
+    def __bytes__(self):
+        raw_data = b''
+        raw_data += struct.pack("<H", self.hardware_type)
+        raw_data += struct.pack("<H", self.proto_type)
+        raw_data += struct.pack("<b", self.hw_len)
+        raw_data += struct.pack("<b", self.proto_len)
+        raw_data += self.operation.value 
+        raw_data += bytes(self.sender_hw)
+        raw_data += bytes(self.sender_proto)
+        raw_data += bytes(self.target_hw)
+        raw_data += bytes(self.target_proto)
+
+        return raw_data
 
     def from_bytes(self, data):
         data_parser = parse_bytes(data)

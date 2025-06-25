@@ -27,12 +27,11 @@ class MacAddress:
        self.addr = bytes.hex(sep=":") 
 
 
-@dataclass
 class Ethernet:
 
     def __init__(self, bytes = None, dst=None, src=None,ethertype=None, payload: bytes=None, crc=None):
-        self.dst = MacAddress()
-        self.src = MacAddress()
+        self.dst = MacAddress(addr=dst)
+        self.src = MacAddress(addr=src)
         self.ethertype = ethertype
         self.payload = payload
         self.crc = crc

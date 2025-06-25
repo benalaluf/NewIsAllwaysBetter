@@ -1,8 +1,6 @@
 from scapy.all import conf, IFACES
-from ethernet import *
-from arp import *
-from interface import *
-import struct
+from interface import Interface
+
 def main():
     IFACES.show()
     index = input("Enter index:")
