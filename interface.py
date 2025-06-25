@@ -1,7 +1,6 @@
 
 from scapy.all import conf, IFACES
 from ethernet import *
-from binascii import crc3
 
 class Interface:
     def __init__(self, iface):
@@ -28,10 +27,10 @@ class Interface:
                 match ethernet_layer.ethertype:
                     case EtherType.IP_V4:
                         print(ethernet_layer)
-
+                        print("-"*20)
                     case EtherType.ARP:
                         print(ethernet_layer)
-
+                        print("-"*20)
                     case _:
-                        print("unkown")
+                        pass
 
