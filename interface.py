@@ -49,5 +49,12 @@ class Interface:
             data = self.read_from_interface()
             if data:
                 ethernet_layer = Ethernet(bytes=data)
-                print(ethernet_layer)
-                print("-"*20)
+                match ethernet_layer.ethertype:
+                    case EtherType.IP_V4:
+                        print(ethernet_layer)
+
+                    case EtherType.ARP:
+                        print(ethernet_layer)
+
+                    case _:
+                        print("unkown")

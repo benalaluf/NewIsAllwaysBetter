@@ -13,9 +13,9 @@ PACK_CRC = "<I"
 PACK_ETHER_TYPE = "<H"
 
 class EtherType:
-    IP_V4 = b'\x08\x00'
-    ARP = b'\x08\x06'
-    UNKNOWN = b'\xFF\xFF'
+    IP_V4 = 0x0008 
+    ARP = 0x0608
+    UNKNOWN = 0xFFFF
 
 class MacAddress(Structure):
     
@@ -30,8 +30,6 @@ def mac_from_addr(string):
 
 def mac_to_str(mac):
     return bytes(mac).hex(":")
-
-
 
 
 class EthernetHeader(Structure):
@@ -64,13 +62,10 @@ class Ethernet:
         return raw_data
 
     def from_bytes(self, data: bytes):
-
         self.header = EthernetHeader.from_buffer_copy(data)
-
         self.src = self.header.src
         self.dst = self.header.dst
         self.ethertype = self.header.ethertype
-
         self.payload = data[HEADER_SIZE:-CRC_SIZE]
         self.crc = data[-CRC_SIZE:]
     

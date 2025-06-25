@@ -54,6 +54,7 @@ class Arp:
         self.protocol_type =  data_parser.send(ARP_PROTO_TYPE_SIZE) 
         self.hw_len = struct.unpack("<b" ,data_parser.send(ARP_HW_LEN_SIZE))[0]
         self.proto_len = struct.unpack("<b", data_parser.send(ARP_PROTO_LEN_SIZE))[0]
+        
         try:
             self.operation = ArpOperationType(data_parser.send(ARP_OP_SIZE))
         except ValueError:
