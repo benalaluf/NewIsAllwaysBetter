@@ -1,8 +1,6 @@
 
 from scapy.all import conf, IFACES
-from arp import Arp
 from ethernet import *
-from net import Net
 
 class Interface:
     def __init__(self, iface):
@@ -22,5 +20,6 @@ class Interface:
             data = self.read_from_interface()
             ethernet_layer = Ethernet(bytes=data)
 
-            if ethernet_layer.ethertype == EtherType.ARP:
-                Net().handle_arp(ethernet_layer.payload)
+            print(ethernet_layer)
+            print("-"*20)
+

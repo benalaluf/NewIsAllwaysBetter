@@ -1,4 +1,3 @@
-
     
 def parse_bytes(data:bytes):
     offset = 0
