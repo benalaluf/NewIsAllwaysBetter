@@ -1,19 +1,40 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from enum import Enum
 import struct
+
+class EtherType(Enum):
+    IP_V4 = b'\x00E'
+    UNKNOWN = b'\xFF\xFF'
+
+@dataclass 
+class MacAddress:
+    addr: str = None
+
+    def __bytes__(self):
+        mac = self.addr.replace(":", '')
+        return bytes.fromhex(mac)
+
+    def from_bytes(self, bytes):
+       self.addr = bytes.hex(sep=":") 
 
 
 @dataclass
 class Ethernet:
-    dst: bytes = None
-    src: bytes = None
-    ethertype: bytes = None
+    dst: MacAddress   = field(default_factory=MacAddress)
+    src: MacAddress   = field(default_factory=MacAddress)
+    ethertype: EtherType = None 
     payload: bytes = None
     crc: bytes = None
 
     def parse_header(self, data):
-        self.dst = data[:6]
-        self.src = data[6:13]
-        self.ethertype = data[13:15]
+        self.dst.from_bytes(data[:6])
+        self.src.from_bytes(data[6:13])
+        
+        try:
+            self.ethertype = EtherType(data[13:15])
+        except ValueError:
+            self.ethertype = EtherType.UNKNOWN
+
         self.payload = data[15:-4]
         self.crc = data[-4:]
     
