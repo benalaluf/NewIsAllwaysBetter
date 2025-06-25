@@ -2,7 +2,6 @@ from ctypes import Structure, c_byte, c_ushort, c_wchar
 from dataclasses import dataclass, field
 from enum import Enum
 import struct
-from utils import parse_bytes
 
 MAC_ADDRESS_SIZE = 6
 ETHER_TYPE_SIZE = 2
