@@ -3,7 +3,8 @@ from enum import Enum
 import struct
 
 class EtherType(Enum):
-    IP_V4 = b'\x00E'
+    IP_V4 = b'\x08\x00'
+    ARP = b'\x08\x06'
     UNKNOWN = b'\xFF\xFF'
 
 @dataclass 
@@ -28,10 +29,10 @@ class Ethernet:
 
     def parse_header(self, data):
         self.dst.from_bytes(data[:6])
-        self.src.from_bytes(data[6:13])
-        
+        self.src.from_bytes(data[6:12])
+
         try:
-            self.ethertype = EtherType(data[13:15])
+            self.ethertype = EtherType(data[12:14])
         except ValueError:
             self.ethertype = EtherType.UNKNOWN
 

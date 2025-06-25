@@ -17,8 +17,10 @@ if __name__ == "__main__":
     while True:
         data = read_from_interface(iface)
         ethernet_layer = Ethernet()
+        # print(data[1])
         if data[1]:
             ethernet_layer.parse_header(data[1])
-            print(ethernet_layer)
-            print(is_dst(iface, ethernet_layer))
-            print("-"*20)
+            if ethernet_layer.ethertype == EtherType.ARP:
+                print(ethernet_layer)
+                print(is_dst(iface, ethernet_layer))
+                print("-"*20)
