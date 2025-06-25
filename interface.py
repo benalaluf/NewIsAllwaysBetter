@@ -21,6 +21,9 @@ class Interface:
         while True:
             data = self.read_from_interface()
             ethernet_layer = Ethernet(bytes=data)
-
-            if ethernet_layer.ethertype == EtherType.ARP:
-                Net().handle_arp(ethernet_layer.payload)
+            
+            match ethernet_layer.ethertype:
+                case EtherType.ARP:
+                    Net().handle_arp(ethernet_layer.payload)
+                case _:
+                    pass

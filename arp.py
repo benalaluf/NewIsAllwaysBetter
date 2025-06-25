@@ -3,43 +3,52 @@ from ip import IPAddress
 from ethernet import *
 from enum import Enum
 
+ARP_HW_TYPE_SIZE = 2
+ARP_PROTO_TYPE_SIZE = 2
+ARP_HW_LEN_SIZE = 1
+ARP_PROTO_LEN_SIZE = 1
+ARP_OP_SIZE = 2
+
 class ArpOperationType(Enum):
     REQUEST = b'\x00\x01'
     REPLY = b'\x00\x02'
     UNKNOWN = b'\xFF\xFF'
 
-@dataclass
 class Arp:
-    hardware_type: bytes = None
-    protocol_type: bytes = None
-    hw_len: bytes  = None
-    proto_len: bytes  = None
-    operation: ArpOperationType  = None
-    sender_hw: MacAddress = field(default_factory=MacAddress)
-    sender_proto: IPAddress = field(default_factory=IPAddress)
-    target_hw: MacAddress = field(default_factory=MacAddress)
-    target_proto: IPAddress = field(default_factory=IPAddress)
 
-    def parse_header(self, data):
-        self.hardware_type = data[:2]
-        self.protocol_type = data[2:4]
-        self.hw_len = data[4]
-        self.proto_len = data[5]
+    def __init__(self, bytes =None, hw_type=None, proto_type=None, hw_len=None,proto_len=None,op=None,
+                 sender_hw=None, sender_proto=None, target_hw=None, target_proto=None):
+
+        self.hardware_type = hw_type
+        self.protocol_type = proto_type
+        self.hw_len = hw_len
+        self.proto_len = proto_len
+        self.operation = op
+        self.sender_hw = MacAddress(addr=sender_hw)
+        self.sender_proto = IPAddress(addr=sender_proto)
+        self.target_hw = MacAddress(addr=target_hw)
+        self.target_proto = IPAddress(addr=target_proto)
+        
+        if bytes:
+            self.from_bytes(bytes)
+
+    def from_bytes(self, data):
+        data_parser = parse_bytes(data)
+        next(data_parser)
+        self.hardware_type = data_parser.send(ARP_HW_TYPE_SIZE) 
+        self.protocol_type =  data_parser.send(ARP_PROTO_TYPE_SIZE) 
+        self.hw_len = struct.unpack("<b" ,data_parser.send(ARP_HW_LEN_SIZE))[0]
+        self.proto_len = struct.unpack("<b", data_parser.send(ARP_PROTO_LEN_SIZE))[0]
         try:
-            self.operation = ArpOperationType(data[6:8])
+            self.operation = ArpOperationType(data_parser.send(ARP_OP_SIZE))
         except ValueError:
             self.operation = ArpOperationType.UNKNOWN
 
-        offset = 8
-
         if self.protocol_type == b'\x08\x00' and self.hardware_type == b'\x00\x01':
-            self.sender_hw.from_bytes(data[offset: offset + self.hw_len])
-            offset += self.hw_len
-            self.sender_proto.from_bytes(data[offset: offset + self.proto_len])
-            offset += self.proto_len
-            self.target_hw.from_bytes(data[offset: offset+ self.hw_len])
-            offset += self.hw_len
-            self.target_proto.from_bytes(data[offset: offset+self.proto_len])
+            self.sender_hw.from_bytes(data_parser.send(self.hw_len))
+            self.sender_proto.from_bytes(data_parser.send(self.proto_len))
+            self.target_hw.from_bytes(data_parser.send(self.hw_len))
+            self.target_proto.from_bytes(data_parser.send(self.proto_len))
 
         else:
             raise ValueError("Unkown proto/hw types")
