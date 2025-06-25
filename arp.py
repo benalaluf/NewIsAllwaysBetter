@@ -4,11 +4,11 @@ from ethernet import *
  
 @dataclass
 class Arp:
-    hardware_type: bytes = None # 2
-    protocol_type: bytes = None# 2
-    hw_len: bytes  = None# 1 
-    proto_len: bytes  = None# 1 
-    operation: bytes  = None# 2 
+    hardware_type: bytes = None
+    protocol_type: bytes = None
+    hw_len: bytes  = None
+    proto_len: bytes  = None
+    operation: bytes  = None
     sender_hw: MacAddress = field(default_factory=MacAddress)
     sender_proto: IPAddress = field(default_factory=IPAddress)
     target_hw: MacAddress = field(default_factory=MacAddress)
@@ -34,3 +34,13 @@ class Arp:
 
         else:
             raise ValueError("Unkown proto/hw types")
+
+class ArpCache:
+    def __init__(self):
+        self.table = dict()
+
+    def getIP(self, hw):
+        return self.table.get(hw)
+    
+    def updateTable(self, hw, ip):
+        self.table[hw] = ip
