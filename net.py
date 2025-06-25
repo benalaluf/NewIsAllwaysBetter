@@ -15,7 +15,9 @@ class Net:
     def handle_arp(self, data):
         arp = Arp()
         arp.parse_header(data)
-        print("-"*15)
-        if arp.operation:
-            print(f"ARP op: {arp.operation}")
+        print(f"ARP op: {arp.operation}")
+        if arp.operation == ArpOperationType.REPLY:
+            print("-"*15)
+            self.arp_table.updateTable(arp.sender_hw.addr, arp.sender_proto.addr)
+            print(self.arp_table.table)
 

@@ -31,6 +31,8 @@ class Ethernet:
         self.dst.from_bytes(data[:6])
         self.src.from_bytes(data[6:12])
 
+        struct.unpack
+
         try:
             self.ethertype = EtherType(data[12:14])
         except ValueError:

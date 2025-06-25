@@ -1,14 +1,20 @@
 from dataclasses import dataclass, field
 from ip import IPAddress
 from ethernet import *
- 
+from enum import Enum
+
+class ArpOperationType(Enum):
+    REQUEST = b'\x00\x01'
+    REPLY = b'\x00\x02'
+    UNKNOWN = b'\xFF\xFF'
+
 @dataclass
 class Arp:
     hardware_type: bytes = None
     protocol_type: bytes = None
     hw_len: bytes  = None
     proto_len: bytes  = None
-    operation: bytes  = None
+    operation: ArpOperationType  = None
     sender_hw: MacAddress = field(default_factory=MacAddress)
     sender_proto: IPAddress = field(default_factory=IPAddress)
     target_hw: MacAddress = field(default_factory=MacAddress)
@@ -19,7 +25,10 @@ class Arp:
         self.protocol_type = data[2:4]
         self.hw_len = data[4]
         self.proto_len = data[5]
-        self.operation = data[6:8] 
+        try:
+            self.operation = ArpOperationType(data[6:8])
+        except ValueError:
+            self.operation = ArpOperationType.UNKNOWN
 
         offset = 8
 
