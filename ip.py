@@ -8,7 +8,7 @@ class IPAddress:
     def __bytes__(self):
         addr_bytes = b'' 
         for p in self.addr.split("."):
-            addr_bytes+= struct.pack("<b", int(p))
+            addr_bytes+= struct.pack("<B", int(p))
         
         return addr_bytes 
 

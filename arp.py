@@ -17,7 +17,7 @@ class ArpOperationType(Enum):
 
 class Arp:
 
-    def __init__(self, bytes =None, hw_type=b'\x00\01', proto_type=b'\x08\x00', hw_len=4 ,proto_len=6,op=None,
+    def __init__(self, bytes =None, hw_type=b'\x00\01', proto_type=b'\x08\x00', hw_len=6 ,proto_len=4,op=None,
                  sender_hw=None, sender_proto=None, target_hw=None, target_proto=None):
 
         self.hardware_type = hw_type
@@ -35,10 +35,10 @@ class Arp:
 
     def __bytes__(self):
         raw_data = b''
-        raw_data += struct.pack("<H", self.hardware_type)
-        raw_data += struct.pack("<H", self.proto_type)
-        raw_data += struct.pack("<b", self.hw_len)
-        raw_data += struct.pack("<b", self.proto_len)
+        raw_data += self.hardware_type
+        raw_data += self.protocol_type
+        raw_data += struct.pack("<B", self.hw_len)
+        raw_data += struct.pack("<B", self.proto_len)
         raw_data += self.operation.value 
         raw_data += bytes(self.sender_hw)
         raw_data += bytes(self.sender_proto)

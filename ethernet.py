@@ -17,11 +17,11 @@ class EtherType(Enum):
 
 @dataclass 
 class MacAddress:
+    
     addr: str = None
 
     def __bytes__(self):
-        mac = self.addr.replace(":", '')
-        return bytes.fromhex(mac)
+        return bytes.fromhex(self.addr.replace(":", ''))
 
     def from_bytes(self, bytes):
        self.addr = bytes.hex(sep=":") 
@@ -44,7 +44,7 @@ class Ethernet:
         raw_data = b''
         raw_data += bytes(self.dst)
         raw_data += bytes(self.src)
-        raw_data += struct.pack(PACK_ETHER_TYPE, self.ethertype)
+        raw_data += self.ethertype.value
         raw_data += self.payload
         raw_data += struct.pack(PACK_CRC, self.crc)
 
