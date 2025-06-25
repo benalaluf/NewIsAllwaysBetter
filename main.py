@@ -4,7 +4,10 @@ from arp import *
 from interface import *
 import struct
 def main():
-    iface = Interface("Ethernet")
+    IFACES.show()
+    index = input("Enter index:")
+    inter = IFACES.dev_from_index(index)
+    iface = Interface(inter.name)
     iface.handle()
    
 
