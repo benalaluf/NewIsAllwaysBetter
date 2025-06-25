@@ -1,3 +1,4 @@
+from ctypes import Structure, c_byte, c_ushort, c_wchar
 from dataclasses import dataclass, field
 from enum import Enum
 import struct
@@ -6,45 +7,57 @@ from utils import parse_bytes
 MAC_ADDRESS_SIZE = 6
 ETHER_TYPE_SIZE = 2
 CRC_SIZE = 4
+HEADER_SIZE = MAC_ADDRESS_SIZE * 2 + ETHER_TYPE_SIZE
 
 PACK_CRC = "<I"
 PACK_ETHER_TYPE = "<H"
 
-class EtherType(Enum):
+class EtherType:
     IP_V4 = b'\x08\x00'
     ARP = b'\x08\x06'
     UNKNOWN = b'\xFF\xFF'
 
-@dataclass 
-class MacAddress:
+class MacAddress(Structure):
     
-    addr: str = None
+    _fields_ = [
+        ("addr", c_byte * 6)
+    ]
 
-    def __bytes__(self):
-        return bytes.fromhex(self.addr.replace(":", ''))
 
-    def from_bytes(self, bytes):
-       self.addr = bytes.hex(sep=":") 
+def mac_from_addr(string):
+    addr = bytes.fromhex(string.replace(":", ""))
+    return MacAddress.from_buffer_copy(addr)
 
+def mac_to_str(mac):
+    return bytes(mac).hex(":")
+
+
+
+
+class EthernetHeader(Structure):
+    _fields_ = [
+            ('src', MacAddress),
+            ('dst', MacAddress),
+            ('ethertype', c_ushort),
+        ]
 
 class Ethernet:
 
-    def __init__(self, bytes = None, dst=None, src=None,ethertype=None, payload: bytes=None, crc=None):
-        self.dst = MacAddress(addr=dst)
-        self.src = MacAddress(addr=src)
-        self.ethertype = ethertype
-        self.payload = payload
-        self.crc = crc
-
+    def __init__(self, bytes = None, header: EthernetHeader = None, payload: bytes=None, crc=None):
         if bytes:
             self.from_bytes(bytes)
-        
+        else:
+            self.header = header
+            self.src = header.src
+            self.dst = header.dst
+            self.ethertype = header.ethertype
+            self.payload = payload
+            self.crc = crc
 
+        
     def __bytes__(self):
         raw_data = b''
-        raw_data += bytes(self.dst)
-        raw_data += bytes(self.src)
-        raw_data += self.ethertype.value
+        raw_data += bytes(self.header)
         raw_data += self.payload
         raw_data += struct.pack(PACK_CRC, self.crc)
 
@@ -52,22 +65,17 @@ class Ethernet:
 
     def from_bytes(self, data: bytes):
 
-        data_parser = parse_bytes(data)
-        next(data_parser)
+        self.header = EthernetHeader.from_buffer_copy(data)
 
-        self.dst.from_bytes(data_parser.send(MAC_ADDRESS_SIZE))
-        self.src.from_bytes(data_parser.send(MAC_ADDRESS_SIZE))
-        
-        try:
-            self.ethertype = EtherType(data_parser.send(ETHER_TYPE_SIZE))
-        except ValueError:
-            self.ethertype = EtherType.UNKNOWN
+        self.src = self.header.src
+        self.dst = self.header.dst
+        self.ethertype = self.header.ethertype
 
-        self.payload = data_parser.send(-CRC_SIZE)
+        self.payload = data[HEADER_SIZE:-CRC_SIZE]
         self.crc = data[-CRC_SIZE:]
     
     def __repr__(self):
-        data_str = f"dst: {self.dst}\nsrc: {self.src}\ntype: {self.ethertype}\npayload: {self.payload}\ncrc: {self.crc}"
+        data_str = f"dst: {mac_to_str(self.dst)}\nsrc: {mac_to_str(self.src)}\ntype: {self.ethertype}\npayload: {self.payload}\ncrc: {self.crc}"
         return data_str
 
 

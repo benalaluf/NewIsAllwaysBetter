@@ -1,6 +1,6 @@
 from scapy.all import conf, IFACES
 from interface import Interface
-
+from ethernet import *
 def main():
     IFACES.show()
     index = input("Enter index:")
@@ -11,3 +11,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+    
+    
