@@ -36,7 +36,7 @@ class Ethernet:
         except ValueError:
             self.ethertype = EtherType.UNKNOWN
 
-        self.payload = data[15:-4]
+        self.payload = data[14:-4]
         self.crc = data[-4:]
     
     def __repr__(self):
